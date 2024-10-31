@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Eliana Jade - Portfolio</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         /* Smooth scroll for anchor links */
         html {
@@ -19,10 +20,31 @@
         @keyframes blink-caret {
             from, to { border-color: transparent; }
             50% { border-color: black; }
+        }    
         }
-            
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 50;
+            padding: 10px;
+        }
+        .modal img {
+            width: 100%;
+            max-width: 500px;
+            max-height: 80%;
+            border-radius: 10px;
         }
     </style>
+
+
 </head>
 <body class="bg-white text-gray-800 font-sans">
 
@@ -451,11 +473,15 @@
     <!-- chatbot -->
 
 
-    <div class="w-full max-w-md sm:mx-auto p-4 sm:p-0 bg-white shadow-lg rounded-lg overflow-hidden" id="bot">
-        <div class="bg-gradient-to-r from-blue-500 to-indigo-600 text-white flex justify-between items-center py-4 px-4">
-            <h1 class="text-lg font-semibold">Personal Assistant</h1>
-            <button id="refresh-button" class="bg-white text-blue-600 px-3 py-1 rounded-md hover:bg-gray-200 focus:outline-none">
-                Refresh
+    <div class="w-full max-w-md mx-auto p-4 bg-white shadow-lg rounded-lg overflow-hidden" id="bot">
+        <div class="bg-gradient-to-r from-blue-500 to-indigo-600 text-white flex justify-between items-center py-4 px-4 rounded-md">
+            <div class="flex items-center">
+                <img id="profile-picture" src="bot_profile_logo.png" alt="Profile" class="w-8 h-8 md:w-10 md:h-10 rounded-full cursor-pointer mr-2">
+                <h1 class="text-lg md:text-xl font-semibold">Personal Assistant</h1>
+            </div>
+            <!-- Simplified refresh button with icon -->
+            <button id="refresh-button" class="text-white text-2xl hover:text-blue-300 transition-all duration-200 ease-in-out focus:outline-none">
+                <i class="fas fa-sync-alt"></i>
             </button>
         </div>
         <div id="chat-log" class="h-96 overflow-y-auto p-4 bg-gray-50">
@@ -472,23 +498,38 @@
         </div>
     </div>
     
+    <!-- Modal for Image Popup -->
+    <div id="image-modal" class="modal flex hidden">
+        <img id="modal-image" src="bot_profile_logo.png" alt="Profile Large">
+    </div>
+    
     <script>
+        // Image click event to show modal
+        document.getElementById('profile-picture').addEventListener('click', function() {
+            document.getElementById('image-modal').style.display = 'flex';
+        });
+    
+        // Modal click event to close the modal
+        document.getElementById('image-modal').addEventListener('click', function() {
+            this.style.display = 'none';
+        });
+    
         const chatbotResponses = {
-            hello: "Hello dear, what would you like to know about this portfolio?",
-            help: "You can ask me about sections of the portfolio, skills, contact info, and more!",
-            thanks: "Most welcome!",
-            no: "Ok, no problem dear.",
-            abuseResponse: "Please maintain a respectful conversation.",
-            name: "I am your personal Assistant.",
-            ownerName: "My owner is Aman Mirza.",
-            owner: "Aman Mirza.",
-            skills: "I have expertise in HTML, CSS, JavaScript, Tailwind CSS, Responsive Design, and Version Control (Git).",
-            about: "I am an experienced Frontend Developer with over a decade of professional expertise. I have contributed to the success and growth of various prestigious organizations.",
-            services: "I am a frontend developer from India, with 2 years of experience in multiple companies like Webdenn and others.",
-            contact: "| aman9811269898@gmail.com | 8076993834",
-            website: "I am an experienced Frontend Developer with over a decade of professional expertise. I have contributed to the success and growth of various prestigious organizations.",
-            clearChat: "Deleting chat...",
-            default: "I'm not sure about that. Can you ask something else related to the portfolio?"
+            hello: "Hey there! 😊 How can I make your day better? Ask me anything about the portfolio or just say hi!",
+            help: "I'm here to help you out! Feel free to ask me questions about the portfolio, skills, or anything else you’re curious about.",
+            thanks: "You're so welcome! 😊 Let me know if there's anything else I can do to assist you.",
+            no: "No worries at all! I'm always here if you need anything. 🌟",
+            abuseResponse: "Let's keep things friendly, please. I'm here to make your day a little brighter! 😊",
+            name: "I'm your friendly chat assistant Riya, here to help and chat with you anytime! 😊",
+            ownerName: "My amazing creator is Aman Mirza. He's a brilliant developer with lots of experience! 💻",
+            owner: "That would be Aman Mirza—an expert in his field and my creator.",
+            skills: "I’ve got the details on HTML, CSS, JavaScript, Tailwind CSS, Responsive Design, and Git. Pretty cool, right?",
+            about: "I’m your assistant, built to guide you with info created by Aman Mirza, who has over a decade of experience in frontend development.",
+            services: "Aman is a skilled frontend developer from India with experience in multiple companies like Webdenn. He can create modern, responsive web solutions.",
+            contact: "Need to reach Aman? You can email him at aman9811269898@gmail.com or call him at 8076993834.",
+            website: "This portfolio showcases Aman Mirza's impressive work as a frontend developer. Feel free to ask about specific projects or skills!",
+            clearChat: "Alright, clearing our chat! 🗑️ Just a sec...",
+            default: "Hmm, I’m not sure about that. Maybe try asking about the portfolio or something you'd like to know!"
         };
     
         const abusiveWords = ["fool", "fuck", "shit", "bitch", "asshole", "damn", "idiot"];
@@ -504,7 +545,6 @@
             if (/clear chat|clear|delete|delete chat/i.test(userInput)) {
                 const chatLog = document.getElementById('chat-log');
     
-                // Display "Deleting chat..." effect once
                 if (!document.querySelector('.deleting-chat')) {
                     const responseElement = document.createElement('div');
                     responseElement.className = 'mb-2 inline-block bg-gray-100 text-gray-900 p-2 rounded-md deleting-chat';
@@ -518,7 +558,7 @@
                 }
     
                 document.getElementById('user-input').value = ''; // Clear input box immediately
-                return null; // No further response needed
+                return null;
             }
     
             if (/no/.test(userInput)) {
